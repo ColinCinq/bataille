@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Test</title>
+</head>
+<body>
+
+	<button onclick="play()">Jouer</button>
+
+	<script type="text/javascript">
+
+		let bataille = new Object();
+		bataille.melangeDebut = new Object();
+		bataille.tours = [];
+		
+		function objPaquet (obj,lib,paquet) {
+			obj[lib] = [];
+			for (var i = 0; i < paquet.length; i++) {
+				obj[lib].push({couleur:paquet[i][0],valeur:paquet[i][1]});
+			}
+		}
+
+		function getRandomInt(max) {
+		  return Math.floor(Math.random() * Math.floor(max));
+		}
+		function createPaquet () {
+			let paquet = [];
+			for (var i = 2; i <= 14; i++) {
+				paquet.push(['Pique',i]);
+				paquet.push(['Coeur',i]);
+				paquet.push(['Carreau',i]);
+				paquet.push(['Trefle',i]);
+			}
+			for (var i = 0; i < 2000; i++) {
+				let rand = [getRandomInt(paquet.length),getRandomInt(paquet.length)];
+				let tmp = paquet[rand[0]];
+				paquet[rand[0]] = paquet[rand[1]];
+				paquet[rand[1]] = tmp;
+			}
+			let j1 = [];
+			let j2 = [];
+			while (paquet.length > 0) {
+				j1.push(paquet.shift());
+				j2.push(paquet.shift());
+			}
+			return [j1,j2];
+		}
+		
+		function comparePile (pile1,pile2) {
+			let qte = pile1.length-1;
+			if (pile1[qte][1] > pile2[qte][1]) {
+				return 1;
+			} else if (pile1[qte][1] < pile2[qte][1]) {
+				return 2;
+			} else if (pile1[qte][1] == pile2[qte][1]) {
+				return 3;
+			}
+		}
+		function toString(tab, name) {
+			let toAff = name+" :";
+			for (var i = 0; i < tab.length; i++) {
+				toAff += " "+tab[i][1]+" de "+tab[i][0];
+			}
+			return toAff;
+		}
+		function joueTour (j1,pile1,j2,pile2) {
+			pile1.push(j1.shift());
+			pile2.push(j2.shift());
+			let result = comparePile(pile1,pile2);
+			let toAff;
+			switch (result) {
+				case 1:
+					bataille.tours.push(new Object());
+					bataille.tours[bataille.tours.length-1].gagnant = "j1";
+					bataille.tours[bataille.tours.length-1].cartePose = new Object();
+					objPaquet(bataille.tours[bataille.tours.length-1].cartePose,"j1",pile1);
+					objPaquet(bataille.tours[bataille.tours.length-1].cartePose,"j2",pile2);
+
+					while (pile1.length > 0) {
+						j1.push(pile1.shift());
+					}
+					while (pile2.length > 0) {
+						j1.push(pile2.shift());
+					}
+
+					bataille.tours[bataille.tours.length-1].paquetFinTour = new Object();
+					objPaquet(bataille.tours[bataille.tours.length-1].paquetFinTour,"j1",j1);
+					objPaquet(bataille.tours[bataille.tours.length-1].paquetFinTour,"j2",j2);
+					break;
+
+				case 2:
+					bataille.tours.push(new Object());
+					bataille.tours[bataille.tours.length-1].gagnant = "j2";
+					bataille.tours[bataille.tours.length-1].cartePose = new Object();
+					objPaquet(bataille.tours[bataille.tours.length-1].cartePose,"j1",pile1);
+					objPaquet(bataille.tours[bataille.tours.length-1].cartePose,"j2",pile2);
+
+					while (pile2.length > 0) {
+						j2.push(pile2.shift());
+					}
+					while (pile1.length > 0) {
+						j2.push(pile1.shift());
+					}
+					
+					bataille.tours[bataille.tours.length-1].paquetFinTour = new Object();
+					objPaquet(bataille.tours[bataille.tours.length-1].paquetFinTour,"j1",j1);
+					objPaquet(bataille.tours[bataille.tours.length-1].paquetFinTour,"j2",j2);
+					break;
+
+				case 3:
+
+					if (j1.length!=0&&j2.length!=0){
+						pile1.push(j1.shift());
+						pile2.push(j2.shift());
+					}
+						
+					if (j1.length==0||j2.length==0) {
+
+						bataille.tours.push(new Object());
+						bataille.tours[bataille.tours.length-1].gagnant = j1.length==0?"j2":"j1";
+						bataille.tours[bataille.tours.length-1].cartePose = new Object();
+						objPaquet(bataille.tours[bataille.tours.length-1].cartePose,"j1",pile1);
+						objPaquet(bataille.tours[bataille.tours.length-1].cartePose,"j2",pile2);
+
+						if (j1.length==0) {
+							while (pile2.length > 0) {
+								j2.push(pile2.shift());
+							}
+							while (pile1.length > 0) {
+								j2.push(pile1.shift());
+							}
+						} else {
+							while (pile1.length > 0) {
+								j1.push(pile1.shift());
+							}
+							while (pile2.length > 0) {
+								j1.push(pile2.shift());
+							}
+						}
+
+						bataille.tours[bataille.tours.length-1].paquetFinTour = new Object();
+						objPaquet(bataille.tours[bataille.tours.length-1].paquetFinTour,"j1",j1);
+						objPaquet(bataille.tours[bataille.tours.length-1].paquetFinTour,"j2",j2);
+
+						return [j1,j2];
+					} else {
+						joueTour(j1,pile1,j2,pile2);
+					}
+					break;
+				default:
+					break;
+			}
+			return [j1,j2];
+		}
+
+		function play() {
+			bataille = new Object();
+			bataille.melangeDebut = new Object();
+			bataille.tours = [];
+
+			let paquet = createPaquet();
+			objPaquet(bataille.melangeDebut,"j1",paquet[0]);
+			objPaquet(bataille.melangeDebut,"j2",paquet[1]);
+			let pile1 = [];
+			let pile2 = [];
+
+			while (paquet[1].length > 0 && paquet[0].length > 0) {
+				paquet = joueTour(paquet[0],pile1,paquet[1],pile2);
+			}
+
+			bataille.nbTours = bataille.tours.length;
+			bataille.gagnant = bataille.tours[bataille.nbTours-1].gagnant;
+
+			const filename = 'bataille'+Date.now()+'.json';
+			const jsonStr = JSON.stringify(bataille);
+			let element = document.createElement('a');
+			element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(jsonStr));
+			element.setAttribute('download', filename);
+			element.style.display = 'none';
+			document.body.appendChild(element);
+			element.click();
+			document.body.removeChild(element);
+		}
+	</script>
+</body>
+</html>
