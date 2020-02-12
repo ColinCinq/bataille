@@ -9,9 +9,9 @@
 
 	<script type="text/javascript">
 
-		let bataille = new Object();
-		bataille.melangeDebut = new Object();
-		bataille.tours = [];
+		let bataille;
+		let partie;
+		
 		
 		function objPaquet (obj,lib,paquet) {
 			obj[lib] = [];
@@ -70,11 +70,11 @@
 			let toAff;
 			switch (result) {
 				case 1:
-					bataille.tours.push(new Object());
-					bataille.tours[bataille.tours.length-1].gagnant = "j1";
-					bataille.tours[bataille.tours.length-1].cartePose = new Object();
-					objPaquet(bataille.tours[bataille.tours.length-1].cartePose,"j1",pile1);
-					objPaquet(bataille.tours[bataille.tours.length-1].cartePose,"j2",pile2);
+					bataille[partie].tours.push(new Object());
+					bataille[partie].tours[bataille[partie].tours.length-1].gagnant = "j1";
+					bataille[partie].tours[bataille[partie].tours.length-1].cartePose = new Object();
+					objPaquet(bataille[partie].tours[bataille[partie].tours.length-1].cartePose,"j1",pile1);
+					objPaquet(bataille[partie].tours[bataille[partie].tours.length-1].cartePose,"j2",pile2);
 
 					while (pile1.length > 0) {
 						j1.push(pile1.shift());
@@ -83,17 +83,17 @@
 						j1.push(pile2.shift());
 					}
 
-					bataille.tours[bataille.tours.length-1].paquetFinTour = new Object();
-					objPaquet(bataille.tours[bataille.tours.length-1].paquetFinTour,"j1",j1);
-					objPaquet(bataille.tours[bataille.tours.length-1].paquetFinTour,"j2",j2);
+					bataille[partie].tours[bataille[partie].tours.length-1].paquetFinTour = new Object();
+					objPaquet(bataille[partie].tours[bataille[partie].tours.length-1].paquetFinTour,"j1",j1);
+					objPaquet(bataille[partie].tours[bataille[partie].tours.length-1].paquetFinTour,"j2",j2);
 					break;
 
 				case 2:
-					bataille.tours.push(new Object());
-					bataille.tours[bataille.tours.length-1].gagnant = "j2";
-					bataille.tours[bataille.tours.length-1].cartePose = new Object();
-					objPaquet(bataille.tours[bataille.tours.length-1].cartePose,"j1",pile1);
-					objPaquet(bataille.tours[bataille.tours.length-1].cartePose,"j2",pile2);
+					bataille[partie].tours.push(new Object());
+					bataille[partie].tours[bataille[partie].tours.length-1].gagnant = "j2";
+					bataille[partie].tours[bataille[partie].tours.length-1].cartePose = new Object();
+					objPaquet(bataille[partie].tours[bataille[partie].tours.length-1].cartePose,"j1",pile1);
+					objPaquet(bataille[partie].tours[bataille[partie].tours.length-1].cartePose,"j2",pile2);
 
 					while (pile2.length > 0) {
 						j2.push(pile2.shift());
@@ -102,9 +102,9 @@
 						j2.push(pile1.shift());
 					}
 					
-					bataille.tours[bataille.tours.length-1].paquetFinTour = new Object();
-					objPaquet(bataille.tours[bataille.tours.length-1].paquetFinTour,"j1",j1);
-					objPaquet(bataille.tours[bataille.tours.length-1].paquetFinTour,"j2",j2);
+					bataille[partie].tours[bataille[partie].tours.length-1].paquetFinTour = new Object();
+					objPaquet(bataille[partie].tours[bataille[partie].tours.length-1].paquetFinTour,"j1",j1);
+					objPaquet(bataille[partie].tours[bataille[partie].tours.length-1].paquetFinTour,"j2",j2);
 					break;
 
 				case 3:
@@ -116,11 +116,11 @@
 						
 					if (j1.length==0||j2.length==0) {
 
-						bataille.tours.push(new Object());
-						bataille.tours[bataille.tours.length-1].gagnant = j1.length==0?"j2":"j1";
-						bataille.tours[bataille.tours.length-1].cartePose = new Object();
-						objPaquet(bataille.tours[bataille.tours.length-1].cartePose,"j1",pile1);
-						objPaquet(bataille.tours[bataille.tours.length-1].cartePose,"j2",pile2);
+						bataille[partie].tours.push(new Object());
+						bataille[partie].tours[bataille[partie].tours.length-1].gagnant = j1.length==0?"j2":"j1";
+						bataille[partie].tours[bataille[partie].tours.length-1].cartePose = new Object();
+						objPaquet(bataille[partie].tours[bataille[partie].tours.length-1].cartePose,"j1",pile1);
+						objPaquet(bataille[partie].tours[bataille[partie].tours.length-1].cartePose,"j2",pile2);
 
 						if (j1.length==0) {
 							while (pile2.length > 0) {
@@ -138,9 +138,9 @@
 							}
 						}
 
-						bataille.tours[bataille.tours.length-1].paquetFinTour = new Object();
-						objPaquet(bataille.tours[bataille.tours.length-1].paquetFinTour,"j1",j1);
-						objPaquet(bataille.tours[bataille.tours.length-1].paquetFinTour,"j2",j2);
+						bataille[partie].tours[bataille[partie].tours.length-1].paquetFinTour = new Object();
+						objPaquet(bataille[partie].tours[bataille[partie].tours.length-1].paquetFinTour,"j1",j1);
+						objPaquet(bataille[partie].tours[bataille[partie].tours.length-1].paquetFinTour,"j2",j2);
 
 						return [j1,j2];
 					} else {
@@ -154,22 +154,29 @@
 		}
 
 		function play() {
-			bataille = new Object();
-			bataille.melangeDebut = new Object();
-			bataille.tours = [];
+			bataille = [];
 
-			let paquet = createPaquet();
-			objPaquet(bataille.melangeDebut,"j1",paquet[0]);
-			objPaquet(bataille.melangeDebut,"j2",paquet[1]);
-			let pile1 = [];
-			let pile2 = [];
+			for (partie = 0; partie < 25; partie++) {
+				bataille[partie] = new Object();
+				bataille[partie].melangeDebut = new Object();
+				bataille[partie].tours = [];
+				
+				bataille[partie].melangeDebut = new Object();
+				bataille[partie].tours = [];
 
-			while (paquet[1].length > 0 && paquet[0].length > 0) {
-				paquet = joueTour(paquet[0],pile1,paquet[1],pile2);
+				let paquet = createPaquet();
+				objPaquet(bataille[partie].melangeDebut,"j1",paquet[0]);
+				objPaquet(bataille[partie].melangeDebut,"j2",paquet[1]);
+				let pile1 = [];
+				let pile2 = [];
+
+				while (paquet[1].length > 0 && paquet[0].length > 0) {
+					paquet = joueTour(paquet[0],pile1,paquet[1],pile2);
+				}
+
+				bataille[partie].nbTours = bataille[partie].tours.length;
+				bataille[partie].gagnant = bataille[partie].tours[bataille[partie].nbTours-1].gagnant;
 			}
-
-			bataille.nbTours = bataille.tours.length;
-			bataille.gagnant = bataille.tours[bataille.nbTours-1].gagnant;
 
 			const filename = 'bataille'+Date.now()+'.json';
 			const jsonStr = JSON.stringify(bataille);
